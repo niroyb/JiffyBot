@@ -66,9 +66,9 @@ YT_PASSWORD = config.get("YouTube", "password")
 
 # Objects
 # Reddit related
-r = praw.Reddit(user_agent="JiffyBot by /u/drkabob/. Converts YouTube links to\
+R = praw.Reddit(user_agent="JiffyBot by /u/drkabob/. Converts YouTube links to\
     GIFs.")
-r.login(USERNAME, PASSWORD)
+R.login(USERNAME, PASSWORD)
 html_parser = HTMLParser.HTMLParser()
 commented = []
 blacklist = []
@@ -219,33 +219,53 @@ def parse_comment(comment):
                 "youtu.be" in comment.submission.url):
             parse_comment_body(comment, comment.submission.url)
 
+def get_file_stripped_lines(filepath):
+    '''Returns the lines of a file in an array stripped of whitespace'''
+    lines = []
+    try:
+        with open(filepath, 'r') as f:
+            lines = [line.strip() for line in f.read().splitlines()]
+    except IOError:
+        sys.stderr.write( 'Error opening file : {}\n'.format(filepath) )
+    return lines
+
+def get_youtube_urls(text):
+    urls = re.findall("https?://www.youtube.com/.*", text) + \
+        re.findall("https?://youtu.be/.*", text)
+    return urls
+
+def test_loop():
+    #subreddit = r.get_subreddit('videos')
+    #subreddit_comments = subreddit.get_comments()
+    #print len(subreddit_comments)
+
+    for comment in R.get_comments("all", limit=None):
+        text = comment.body
+        print text
+        yt_urls = get_youtube_urls(text)
+        if len(yt_urls):
+            print '\n'.join(yt_urls)
 
 # Main loop for comment searching and parsing
 def main_loop():
     # Main loop start here...
     while True:
         # Read the blacklist and place it into an array
-        with open("blacklist.txt", 'r') as f:
-            del blacklist[:]
-            for entry in f.readlines():
-                blacklist.append(entry.strip())
+        blacklist = get_file_stripped_lines("blacklist.txt")
 
         # Read read list for mentioned
-        with open("readlist.txt", 'r') as f:
-            readlist = []
-            for entry in f.readlines():
-                readlist.append(entry.strip())
+        readlist = get_file_stripped_lines("readlist.txt")
 
         # Start the comment loop
         try:
             # Grab as many comments as we can and loop through them
-            for comment in r.get_comments("all", limit=None):
+            for comment in R.get_comments("all", limit=None):
                 # Check if the comment meets the basic criteria
                 if "Jiffy!" in comment.body:
                     parse_comment(comment)
 
             # Check mentions
-            for comment in r.get_mentions():
+            for comment in R.get_mentions():
                 if comment.id not in readlist:
                     with open("readlist.txt", "a") as f:
                         f.write(comment.id + '\n')
@@ -256,8 +276,9 @@ def main_loop():
         except Exception, e:
             print e
 
-# Threads!
-main_thread = threading.Thread(target=main_loop)
-
-# Start threads!
-main_thread.start()
+if __name__ == '__main__':
+    # Threads!
+    #main_thread = threading.Thread(target=main_loop)
+    # Start threads!
+    #main_thread.start()
+    test_loop()
