@@ -164,6 +164,8 @@ pip-log.txt
 
 # Project
 *.pyproj
+# Keep out the IDE
+*.sln
 
 # App configuration file
 jiffy.cfg
