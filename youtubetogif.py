@@ -51,6 +51,7 @@ HEADERS = {"Authorization": "Client-ID " + API_KEY}
 # Reddit related
 USERNAME = config.get("Reddit", "username")
 PASSWORD = config.get("Reddit", "password")
+
 COMMENT_TEMPLATE = "Here's your GIF!\n\n{0}\n\n_____\n^(Hey I'm JiffyBot, I\
   make GIFs out of YouTube links. Find out more) [^here.](http://www.reddit\
   .com/r/JiffyBot/comments/1fvrsq/the_official_make_your_own_gif_verison_sf\
@@ -66,8 +67,7 @@ YT_PASSWORD = config.get("YouTube", "password")
 
 # Objects
 # Reddit related
-R = praw.Reddit(user_agent="JiffyBot by /u/drkabob/. Converts YouTube links to\
-    GIFs.")
+R = praw.Reddit(user_agent = config.get("Reddit", "user_agent"))
 R.login(USERNAME, PASSWORD)
 html_parser = HTMLParser.HTMLParser()
 commented = []
@@ -235,7 +235,7 @@ def get_youtube_urls(text):
     return urls
 
 def test_loop():
-    #subreddit = r.get_subreddit('videos')
+    #subreddit = R.get_subreddit('videos')
     #subreddit_comments = subreddit.get_comments()
     #print len(subreddit_comments)
 
