@@ -239,12 +239,17 @@ def test_loop():
     #subreddit_comments = subreddit.get_comments()
     #print len(subreddit_comments)
 
-    for comment in R.get_comments("all", limit=None):
+    for i, comment in enumerate(R.get_comments("all", limit=None)):
+        print i
+        print comment.id
+        print comment.permalink
         text = comment.body
         print text
         yt_urls = get_youtube_urls(text)
         if len(yt_urls):
+            print "FOUND!", comment.id
             print '\n'.join(yt_urls)
+        print
 
 # Main loop for comment searching and parsing
 def main_loop():
